@@ -19,6 +19,6 @@ services:
       - '4000:4000'
     depends_on:
       - database
-    environment: 
+    environment:
       - DATABASE_URL=postgres://postgres:postgres@database:5432/postgres
       - secretkey=secretkey

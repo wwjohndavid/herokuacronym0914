@@ -6,6 +6,9 @@ import expressPino from 'express-pino-logger';
 
 import acronymRouter from './acronym/acronymRoute';
 
+import swaggerJSDoc from 'swagger-jsdoc';
+import swaggerUi from 'swagger-ui-express';
+
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const expressLogger = expressPino({ logger });
 
@@ -14,6 +17,7 @@ env.config();
 const app = express();
 app.use(cors(), json(), urlencoded({ extended: true }), expressLogger);
 
+console.log("acronymRouter start");
 app.use(acronymRouter);
 
 app.get('/', (req, res) => {
@@ -22,6 +26,21 @@ app.get('/', (req, res) => {
     message: 'World Texting Foundation, REST API',
   });
 });
+
+const options = {
+  swaggerDefinition: {
+    info: {
+      title: 'REST API',
+      version: '1.0.0',
+      description: 'Example docs',
+    },
+  },
+  apis: ['swagger.yaml'],
+};
+
+const specs = swaggerJSDoc(options);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
+
 
 app.use('*', (req, res) =>
   res.status(405).json({

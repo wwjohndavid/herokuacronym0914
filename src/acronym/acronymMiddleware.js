@@ -1,6 +1,7 @@
 /* eslint-disable consistent-return */
 import { createAcronymSchema, editAcronymSchema } from './acronmyValidators';
-import { query, Token } from '../core/utils';
+import { Token } from '../core/utils';
+import {isExistItem} from '../core/acronyms.model';
 
 const validateAcronym = async (req, res, next) => {
   try {
@@ -21,17 +22,17 @@ const validateAcronym = async (req, res, next) => {
 
 const acronymExists = async (req, res, next) => {
   try {
-    const sql = `SELECT * FROM acronyms where id = $1`;
-    const { rows } = await query(sql, [req.params.acronym]);
 
-    if (rows.length === 0) {
+    const item = await isExistItem([req.params.acronym]);
+    
+    if (item === undefined) {
       return res.status(404).json({
         status: 404,
         message: 'Acronym does not exist',
       });
     }
     // eslint-disable-next-line prefer-destructuring
-    req.acronym = rows[0];
+    req.acronym = item;
     next();
   } catch (error) {
     return res.status(500);
@@ -39,6 +40,7 @@ const acronymExists = async (req, res, next) => {
 };
 
 const tokenProvided = (req, res, next) => {
+  console.log("this is ", req.headers.authorization)
   if (!req.headers.authorization) {
     return res.status(403).json({
       status: 403,

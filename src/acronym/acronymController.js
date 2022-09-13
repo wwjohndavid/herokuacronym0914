@@ -1,12 +1,14 @@
 /* eslint-disable consistent-return */
-import { query } from '../core/utils';
 import matchStr from './acronymUtils';
+import { getItems, createItem, updateItem, isExistItem, deleteItem } from '../core/acronyms.model';
 
 const acronyms = async (req, res) => {
   try {
-    const sql = `SELECT * FROM acronyms`;
-    const { rows } = await query(sql, [], res);
 
+    const rows  = await getItems();
+
+    console.log(rows.length);
+    
     const resource = req.path.split('/')[1];
 
     const offset = parseInt(req.query.from, 10) || 1;
@@ -18,11 +20,12 @@ const acronyms = async (req, res) => {
         .status(400)
         .json({ status: 400, message: 'Requested limit not allowed' });
 
-    const queryset = rows.slice(offset - 1);
-    let paginatedQueryset = queryset.slice(0, limit);
+    const mSet = rows.slice(offset - 1);
+
+    let paginatedmSet = mSet.slice(0, limit);
 
     if (req.query.search)
-      paginatedQueryset = matchStr(req.query.search, queryset).slice(0, limit);
+      paginatedmSet = matchStr(req.query.search, mSet).slice(0, limit);
 
     return res
       .header('Access-Control-Expose-Headers', 'Content-Range')
@@ -33,7 +36,7 @@ const acronyms = async (req, res) => {
       )
       .header('Accept-Range', `${resource} 100`)
       .status(206)
-      .json(paginatedQueryset);
+      .json(paginatedmSet);
   } catch (error) {
     return res.status(500);
   }
@@ -41,14 +44,11 @@ const acronyms = async (req, res) => {
 
 const createAcronym = async (req, res) => {
   try {
+
     const { acronym, definition } = req.body;
 
-    const sql = `INSERT INTO acronyms
-    (acronym, definition)
-    VALUES ($1, $2) RETURNING *`;
-
-    const { rows } = await query(sql, [acronym.trim(), definition.trim()], res);
-
+    const rows  = await createItem([acronym.trim(), definition.trim()], res);
+    
     if (rows) {
       return res.status(201).json(rows);
     }
@@ -60,19 +60,12 @@ const createAcronym = async (req, res) => {
 const updateAcronym = async (req, res) => {
   try {
     const { acronym, definition } = req.body;
-
-    const sql = `UPDATE acronyms 
-      SET acronym = $1, definition = $2 WHERE id = $3 RETURNING *`;
-
-    const { rows } = await query(
-      sql,
-      [
-        (acronym && acronym.trim()) || req.acronym.acronym,
-        (definition && definition.trim()) || req.acronym.definition,
-        req.params.acronym,
-      ],
-      res
-    );
+   
+    const rows = await updateItem([
+      (acronym && acronym.trim()) || req.acronym.acronym,
+      (definition && definition.trim()) || req.acronym.definition,
+      req.params.acronym,
+    ], res);
 
     if (rows) {
       return res.json(rows);
@@ -84,8 +77,8 @@ const updateAcronym = async (req, res) => {
 
 const deleteAcronym = async (req, res) => {
   try {
-    const sql = `DELETE FROM acronyms WHERE id=$1`;
-    await query(sql, [req.params.acronym], res);
+
+    await deleteItem([req.params.acronym], res);
 
     return res
       .status(200)

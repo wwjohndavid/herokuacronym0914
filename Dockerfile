@@ -1,6 +1,6 @@
 FROM node:12
 
-WORKDIR /home/christ/Kreyet/g2i/dck
+WORKDIR /
 
 COPY package*.json ./
 

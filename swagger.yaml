@@ -1,0 +1,115 @@
+openapi: 3.0.3
+
+paths:
+  # [GET] acronym
+  /acronym:
+    get:
+      tags:
+        - acronym
+      summary: get all acronyms
+      parameters:
+        - name: from
+          in: query
+          required: false
+          type: string
+        - name: limit
+          in: query
+          required: false
+          type: string
+        - name: search
+          in: query
+          required: false
+          type: string
+
+      responses:
+        200:
+          description: 'Successful Operation'
+        206:
+          description: 'out of ange'
+        400:
+          description: 'Requested limit not allowed'
+        500:
+          description: 'Server Error'
+
+    # [POST] acronym
+    post:
+      tags:
+        - acronym
+      summary: Add acronym
+      parameters:
+        - name: body
+          in: body
+          description: acronym Data
+          required: true
+          schema:
+            $ref: '#/definitions/acronyms'
+      responses:
+        201:
+          description: 'Acrym Created'
+        500:
+          description: 'Server Error'
+
+  # [PUT] acronym/acronym
+  /acronym/{acronym}:
+    put:
+      tags:
+        - acronym
+      summary: Update acronym
+      parameters:
+        - name: acronym
+          in: path
+          description: acronym
+          required: true
+          type: string
+        - name: body
+          in: body
+          description: acronym Data
+          required: true
+          schema:
+            $ref: '#/definitions/acronyms'
+        - name: authorization
+          in: header
+          descritpion: Bearer Token
+          required: true
+
+      responses:
+        200:
+          description: 'Successful Operation'
+        404:
+          description: 'Acronym does not exist'
+        500:
+          description: 'Server Error'
+
+    # [DELETE] acronym/acronym
+    delete:
+      tags:
+        - acronym
+      summary: Delete acronym
+      parameters:
+        - name: acronym
+          in: path
+          description: acronym
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'Successful Operation'
+        404:
+          description: 'Acronym does not exist'
+        500:
+          description: 'Server Error'
+
+# definitions
+definitions:
+  acronyms:
+    type: object
+    required:
+      - acronym
+      - definition
+    properties:
+      acronym:
+        type: string
+        description: abbreviation of something
+      definition:
+        type: string
+        description: definition of acronym

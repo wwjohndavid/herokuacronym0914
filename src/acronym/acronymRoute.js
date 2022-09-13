@@ -15,12 +15,10 @@ import {
 
 const acronymRouter = express.Router();
 
-acronymRouter.get('/acronym', tokenProvided, verifyToken, acronyms);
+acronymRouter.get('/acronym',  acronyms);
 
 acronymRouter.post(
   '/acronym',
-  tokenProvided,
-  verifyToken,
   validateAcronym,
   validateAcronym,
   createAcronym
