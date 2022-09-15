@@ -8,6 +8,9 @@ import acronymRouter from './acronym/acronymRoute';
 
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
+import { startServer } from './server';
+import { createDatabaseConnection, closeDatabaseConnection } from './database';
+
 
 const logger = pino({ level: process.env.LOG_LEVEL || 'info' });
 const expressLogger = expressPino({ logger });
@@ -60,5 +63,9 @@ if (process.env.NODE_ENV === 'test') {
 app.listen(PORT, () => {
   logger.info(`Server started on port ${PORT}...`);
 });
+
+
+startServer();
+createDatabaseConnection();
 
 export default app;

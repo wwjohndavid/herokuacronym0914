@@ -21,6 +21,14 @@ var _expressPinoLogger = _interopRequireDefault(require("express-pino-logger"));
 
 var _acronymRoute = _interopRequireDefault(require("./acronym/acronymRoute"));
 
+var _swaggerJsdoc = _interopRequireDefault(require("swagger-jsdoc"));
+
+var _swaggerUiExpress = _interopRequireDefault(require("swagger-ui-express"));
+
+var _server = require("./server");
+
+var _database = require("./database");
+
 function _getRequireWildcardCache(nodeInterop) { if (typeof WeakMap !== "function") return null; var cacheBabelInterop = new WeakMap(); var cacheNodeInterop = new WeakMap(); return (_getRequireWildcardCache = function _getRequireWildcardCache(nodeInterop) { return nodeInterop ? cacheNodeInterop : cacheBabelInterop; })(nodeInterop); }
 
 function _interopRequireWildcard(obj, nodeInterop) { if (!nodeInterop && obj && obj.__esModule) { return obj; } if (obj === null || _typeof(obj) !== "object" && typeof obj !== "function") { return { "default": obj }; } var cache = _getRequireWildcardCache(nodeInterop); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (key !== "default" && Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj["default"] = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
@@ -38,6 +46,7 @@ var app = (0, _express["default"])();
 app.use((0, _cors["default"])(), (0, _express.json)(), (0, _express.urlencoded)({
   extended: true
 }), expressLogger);
+console.log("acronymRouter start");
 app.use(_acronymRoute["default"]);
 app.get('/', function (req, res) {
   res.send({
@@ -45,6 +54,18 @@ app.get('/', function (req, res) {
     message: 'World Texting Foundation, REST API'
   });
 });
+var options = {
+  swaggerDefinition: {
+    info: {
+      title: 'REST API',
+      version: '1.0.0',
+      description: 'Example docs'
+    }
+  },
+  apis: ['swagger.yaml']
+};
+var specs = (0, _swaggerJsdoc["default"])(options);
+app.use('/api-docs', _swaggerUiExpress["default"].serve, _swaggerUiExpress["default"].setup(specs));
 app.use('*', function (req, res) {
   return res.status(405).json({
     status: 405,
@@ -62,5 +83,7 @@ if (process.env.NODE_ENV === 'test') {
 app.listen(PORT, function () {
   logger.info("Server started on port ".concat(PORT, "..."));
 });
+(0, _server.startServer)();
+(0, _database.createDatabaseConnection)();
 var _default = app;
 exports["default"] = _default;

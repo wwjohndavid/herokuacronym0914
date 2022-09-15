@@ -17,6 +17,8 @@ var _acronmyValidators = require("./acronmyValidators");
 
 var _utils = require("../core/utils");
 
+var _acronyms = require("../core/acronyms.model");
+
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
 
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { (0, _defineProperty2["default"])(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -73,23 +75,20 @@ exports.validateAcronym = validateAcronym;
 
 var acronymExists = /*#__PURE__*/function () {
   var _ref2 = (0, _asyncToGenerator2["default"])( /*#__PURE__*/_regenerator["default"].mark(function _callee2(req, res, next) {
-    var sql, _yield$query, rows;
-
+    var item;
     return _regenerator["default"].wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
             _context2.prev = 0;
-            sql = "SELECT * FROM acronyms where id = $1";
-            _context2.next = 4;
-            return (0, _utils.query)(sql, [req.params.acronym]);
+            _context2.next = 3;
+            return (0, _acronyms.isExistItem)([req.params.acronym]);
 
-          case 4:
-            _yield$query = _context2.sent;
-            rows = _yield$query.rows;
+          case 3:
+            item = _context2.sent;
 
-            if (!(rows.length === 0)) {
-              _context2.next = 8;
+            if (!(item === undefined)) {
+              _context2.next = 6;
               break;
             }
 
@@ -98,24 +97,24 @@ var acronymExists = /*#__PURE__*/function () {
               message: 'Acronym does not exist'
             }));
 
-          case 8:
+          case 6:
             // eslint-disable-next-line prefer-destructuring
-            req.acronym = rows[0];
+            req.acronym = item;
             next();
-            _context2.next = 15;
+            _context2.next = 13;
             break;
 
-          case 12:
-            _context2.prev = 12;
+          case 10:
+            _context2.prev = 10;
             _context2.t0 = _context2["catch"](0);
             return _context2.abrupt("return", res.status(500));
 
-          case 15:
+          case 13:
           case "end":
             return _context2.stop();
         }
       }
-    }, _callee2, null, [[0, 12]]);
+    }, _callee2, null, [[0, 10]]);
   }));
 
   return function acronymExists(_x4, _x5, _x6) {
@@ -126,6 +125,8 @@ var acronymExists = /*#__PURE__*/function () {
 exports.acronymExists = acronymExists;
 
 var tokenProvided = function tokenProvided(req, res, next) {
+  console.log("this is ", req.headers.authorization);
+
   if (!req.headers.authorization) {
     return res.status(403).json({
       status: 403,
